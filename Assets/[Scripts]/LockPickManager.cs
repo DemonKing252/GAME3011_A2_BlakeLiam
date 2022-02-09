@@ -17,19 +17,37 @@ public enum Difficulty
 
     NumDifficulties
 }
+public enum Btn
+{
+    Start,
+    PlayAgain,
+    Quit,
+
+}
+
 
 
 
 public class LockPickManager : MonoBehaviour
 {
+    [SerializeField] private float startingTime = 180f;
     [SerializeField] private GameObject lock1; 
     [SerializeField] private GameObject lock2;
+
+
+    [SerializeField] Canvas gameUI;
+    [SerializeField] Canvas startCanvas;
+    [SerializeField] Canvas winCanvas;
+    [SerializeField] Canvas loseCanvas;
 
     [SerializeField]
     private float skill = 100f;
 
     [SerializeField] private TMP_Text lock1Status;
     [SerializeField] private TMP_Text lock2Status;
+
+    [SerializeField] private TMP_Text timeText;
+    [SerializeField] private TMP_Text gameStatus;
 
     [SerializeField, Range(0f, 100f)]
     private float lockOnelerpSpeedAtSkillZero;
@@ -43,10 +61,6 @@ public class LockPickManager : MonoBehaviour
 
     [SerializeField, Range(0f, 100f)]
     private float lockTwolerpSpeedAtSkillOneHundred;
-
-
-    [SerializeField]
-    private float[] difficultyRanges;
 
     [SerializeField]
     private Difficulty difficulty;
@@ -66,15 +80,23 @@ public class LockPickManager : MonoBehaviour
 
     private bool lockOneUnlocked = false;
     private bool lockTwoUnlocked = false;
+    private float timeRemaining;
 
     [SerializeField]
     AudioSource lockPickAudioQueue;
 
     private bool alreadyPlayed = false;
 
-    public float GetRange() 
+    public float GetRange()
     {
-        return difficultyRanges[(int)difficulty];
+        float range = difficulty switch
+        {
+            Difficulty.Easy     => 20f,
+            Difficulty.Normal   => 10f,
+            Difficulty.Hard     =>  5f,
+            _ => throw new System.Exception("Unknown difficulty!")
+        };
+        return range;
     }
 
     private static LockPickManager instance = null;
@@ -95,12 +117,28 @@ public class LockPickManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        UnityEngine.Assertions.Assert.IsTrue((int)Difficulty.NumDifficulties == difficultyRanges.Length, "Error: Difficulty size array has to match num of difficulty enumerations!");
+        timeRemaining = startingTime;
+
+        Time.timeScale = 0f;
     }
 
     // Update is called once per frame
     void Update()
     {
+
+        timeRemaining -= Time.deltaTime;
+        timeRemaining = Mathf.Clamp(timeRemaining, 0f, Mathf.Infinity);
+
+        int realMinutes = Mathf.FloorToInt(timeRemaining / 60f);
+        int realSeconds = (int)timeRemaining % 60;
+        timeText.text = realMinutes + ":" + realSeconds.ToString("00");
+
+        if (timeRemaining <= 0f)
+        {
+            loseCanvas.gameObject.SetActive(true);
+            Time.timeScale = 0f;
+        }
+
         if (cheatMode)
         {
             Debug.Log(lock1.transform.rotation.eulerAngles.z + " - One - " + lock1.GetComponent<Lock>().selectedAngle + ", " +
@@ -142,12 +180,13 @@ public class LockPickManager : MonoBehaviour
 
                 alreadyPlayed = false;
             }
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(0) && Time.timeScale != 0f)
             {
                 if (eulerZCoord >= selectedAngle - (range * 0.5f) && eulerZCoord <= selectedAngle + (range * 0.5f))
                 {
                     Debug.Log("Picked locked successfully!");
                     lock1Status.text = "Lock #1 - <color=green>Unlocked</color>";
+                    gameStatus.text = "Lock #1 picked successfully!";
                     onSetLockColor.Invoke(LockNum.LockOne, Color.green);
                     lockOneUnlocked = true;
                     lockTwoControl = true;
@@ -155,10 +194,13 @@ public class LockPickManager : MonoBehaviour
                 }
                 else
                 {
+                    timeRemaining -= 10f;
                     lock1Status.text = "Lock #1 - <color=red>Wrong Orientation</color>";
+                    gameStatus.text = "Lock #1 picked unsuccessfully. 10s punishment";
                     onSetLockColor.Invoke(LockNum.LockOne, Color.red);
                     Debug.Log("Sorry, you didn't pick the lock!");
                     StartCoroutine(ResetLock(LockNum.LockOne));
+
                 }
 
 
@@ -169,7 +211,7 @@ public class LockPickManager : MonoBehaviour
         {
             float hAxis = Input.GetAxis("Horizontal");
 
-            float sensitivity = Mathf.Lerp(lockTwolerpSpeedAtSkillZero, lockTwolerpSpeedAtSkillZero, skill / 100f);
+            float sensitivity = Mathf.Lerp(lockTwolerpSpeedAtSkillZero, lockTwolerpSpeedAtSkillOneHundred, skill / 100f);
             
             lock2.transform.rotation *= Quaternion.Euler(0f, 0f, hAxis * sensitivity * Time.deltaTime);
             
@@ -201,13 +243,18 @@ public class LockPickManager : MonoBehaviour
                 {
                     Debug.Log("Picked locked successfully!");
                     lock2Status.text = "Lock #2 - <color=green>Unlocked</color>";
+                    gameStatus.text = "Lock #2 picked successfully!";
                     onSetLockColor.Invoke(LockNum.LockTwo, Color.green);
                     lockTwoUnlocked = true;
+
+                    winCanvas.gameObject.SetActive(true);
+                    Time.timeScale = 0f;
                 }
                 else
                 {
-                    lock2Status.text = "Lock #2 - <color=red>Wrong Orientation</color>";
+                    timeRemaining -= 10f;
                     onSetLockColor.Invoke(LockNum.LockTwo, Color.red);
+                    gameStatus.text = "Lock #2 picked unsuccessfully. 10s punishment";
                     Debug.Log("Sorry, you didn't pick the lock!");
                     StartCoroutine(ResetLock(LockNum.LockTwo));
                 }
@@ -215,13 +262,49 @@ public class LockPickManager : MonoBehaviour
 
         }
 
-        
-
-
-        //Debug.Log("Local mouse: " + localPosition.ToString());
-
-    
     }
+    public void OnButtonPressed(int buttonKey)
+    {
+        // Can't have an enum as a parameter for a unity event unfortuntately
+        Btn btnPressed = buttonKey switch 
+        {
+            0 => Btn.Start,
+            1 => Btn.PlayAgain,
+            2 => Btn.Quit,
+            _ => throw new System.Exception("Unknown button key!")
+        };
+
+        switch (btnPressed)
+        {
+            case Btn.Start:
+                startCanvas.gameObject.SetActive(false);
+                gameUI.gameObject.SetActive(true);
+                Time.timeScale = 1f;
+                break;
+            case Btn.PlayAgain:
+                UnityEngine.SceneManagement.SceneManager.LoadScene("SampleScene");
+                break;
+            case Btn.Quit:
+#if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
+                break;
+        
+        }
+
+
+    }
+    public void OnSliderFloat(float val)
+    {
+        skill = val;
+    }
+    public void OnSelection(System.Int32 index)
+    {
+        difficulty = (Difficulty)index;
+    }
+
     public IEnumerator ResetLock(LockNum lockNo)
     {
         if (lockNo == LockNum.LockOne)

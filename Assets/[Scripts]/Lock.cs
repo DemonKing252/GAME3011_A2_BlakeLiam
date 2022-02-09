@@ -31,7 +31,6 @@ public class Lock : MonoBehaviour
 
         if (lockNum == this.lockNo)
         {
-            print("kk");
             selectedAngle = Random.Range(1f, 360f);
 
             float tempAngle = 0f;
