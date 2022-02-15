@@ -4634,6 +4634,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 610214082}
     - target: {fileID: 3248001730004325564, guid: dcc908d7b793e6644ae8ba7ad35b2eea, type: 3}
+      propertyPath: skill
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 3248001730004325564, guid: dcc908d7b793e6644ae8ba7ad35b2eea, type: 3}
       propertyPath: gameUI
       value: 
       objectReference: {fileID: 1633068195}
@@ -4666,6 +4670,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1014976018}
     - target: {fileID: 3248001730004325564, guid: dcc908d7b793e6644ae8ba7ad35b2eea, type: 3}
+      propertyPath: playerSkillText
+      value: 
+      objectReference: {fileID: 7021667127936179571}
+    - target: {fileID: 3248001730004325564, guid: dcc908d7b793e6644ae8ba7ad35b2eea, type: 3}
       propertyPath: lockPickAudioQueue
       value: 
       objectReference: {fileID: 1522412350}
@@ -4678,9 +4686,17 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 512357226814769168, guid: 46cbe59e3b45ec94c9d651fa0e3020ec, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 443.4
+      objectReference: {fileID: 0}
     - target: {fileID: 7021667126313941458, guid: 46cbe59e3b45ec94c9d651fa0e3020ec, type: 3}
       propertyPath: m_Name
       value: LockPickUI
+      objectReference: {fileID: 0}
+    - target: {fileID: 7021667126313941458, guid: 46cbe59e3b45ec94c9d651fa0e3020ec, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7021667126313941462, guid: 46cbe59e3b45ec94c9d651fa0e3020ec, type: 3}
       propertyPath: m_Pivot.x
@@ -4766,9 +4782,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7021667126416311582, guid: 46cbe59e3b45ec94c9d651fa0e3020ec, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 800
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 46cbe59e3b45ec94c9d651fa0e3020ec, type: 3}
+--- !u!114 &7021667127936179571 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 832269611612008228, guid: 46cbe59e3b45ec94c9d651fa0e3020ec, type: 3}
+  m_PrefabInstance: {fileID: 7021667127936179570}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

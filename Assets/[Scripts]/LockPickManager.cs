@@ -41,13 +41,15 @@ public class LockPickManager : MonoBehaviour
     [SerializeField] Canvas loseCanvas;
 
     [SerializeField]
-    private float skill = 100f;
+    private float skill = 50f;
 
     [SerializeField] private TMP_Text lock1Status;
     [SerializeField] private TMP_Text lock2Status;
 
     [SerializeField] private TMP_Text timeText;
     [SerializeField] private TMP_Text gameStatus;
+
+    [SerializeField] private TMP_Text playerSkillText;
 
     [SerializeField, Range(0f, 100f)]
     private float lockOnelerpSpeedAtSkillZero;
@@ -120,6 +122,7 @@ public class LockPickManager : MonoBehaviour
         timeRemaining = startingTime;
 
         Time.timeScale = 0f;
+
     }
 
     // Update is called once per frame
@@ -277,6 +280,7 @@ public class LockPickManager : MonoBehaviour
         switch (btnPressed)
         {
             case Btn.Start:
+                playerSkillText.text = string.Format("Player Skill: {0}/100", skill.ToString("F1"));
                 startCanvas.gameObject.SetActive(false);
                 gameUI.gameObject.SetActive(true);
                 Time.timeScale = 1f;
